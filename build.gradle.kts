@@ -1,12 +1,14 @@
 plugins {
-    java
-    id("org.graalvm.buildtools.native") version "0.9.4"
+    application
+    id("org.graalvm.buildtools.native") version "0.9.23"
 }
 
 group = "com.codetinkerer.servedir"
 version = "0.1-SNAPSHOT"
 
-val mainClassName = "com.codetinkerer.servedir.ServeDir"
+application {
+    mainClass.set("com.codetinkerer.servedir.ServeDir")
+}
 
 repositories {
     mavenCentral()
@@ -19,21 +21,28 @@ dependencies {
 }
 
 tasks.jar {
-    manifest.attributes["Main-Class"] = mainClassName
+    manifest.attributes["Main-Class"] = application.mainClass
     val dependencies = configurations.runtimeClasspath.get()
         .map { zipTree(it) }
     from(dependencies)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-nativeBuild {
-    mainClass.set(mainClassName)
-    verbose.set(true)
-    useFatJar.set(false)
+graalvmNative {
+    binaries.all {
+        resources.autodetect()
+    }
+    toolchainDetection.set(false)
 
-    buildArgs.add("-H:DashboardDump=servedir.dump")
-    buildArgs.add("-H:+DashboardAll")
-    buildArgs.add("-H:+StaticExecutableWithDynamicLibC")
-    buildArgs.add("--initialize-at-build-time=org.slf4j")
-    buildArgs.add("--initialize-at-build-time=ch.qos.logback")
+    binaries {
+        named("main") {
+            verbose.set(true)
+
+            buildArgs.add("-H:DashboardDump=servedir.dump")
+            buildArgs.add("-H:+DashboardAll")
+            buildArgs.add("-H:+StaticExecutableWithDynamicLibC")
+            buildArgs.add("--initialize-at-build-time=org.slf4j")
+            buildArgs.add("--initialize-at-build-time=ch.qos.logback")
+        }
+    }
 }
