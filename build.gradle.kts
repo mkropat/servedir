@@ -6,6 +6,8 @@ plugins {
 group = "com.codetinkerer.servedir"
 version = "0.1-SNAPSHOT"
 
+val systemArchitecture = System.getProperty("os.arch")
+
 application {
     mainClass.set("com.codetinkerer.servedir.ServeDir")
 }
@@ -45,4 +47,27 @@ graalvmNative {
             buildArgs.add("--initialize-at-build-time=ch.qos.logback")
         }
     }
+}
+
+val compressTask by tasks.register<Exec>("compress") {
+    dependsOn("nativeCompile")
+
+    val outputDir = File("$buildDir/native/compressed")
+    inputs.file(File("$buildDir/native/nativeCompile/${project.name}"))
+    outputs.file(outputDir.resolve(project.name))
+    doFirst {
+        outputDir.mkdirs()
+        outputs.files.singleFile.delete()
+    }
+    commandLine("upx", "-o", outputs.files.singleFile.absolutePath, inputs.files.singleFile.absolutePath)
+}
+
+tasks.named("nativeCompile") {
+    finalizedBy(compressTask)
+}
+
+tasks.register<Zip>("packageRelease") {
+    dependsOn(compressTask)
+    from("$buildDir/native/compressed")
+    archiveFileName.set("${project.name}-${systemArchitecture}.zip")
 }
