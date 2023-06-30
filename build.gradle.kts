@@ -40,9 +40,6 @@ graalvmNative {
         named("main") {
             verbose.set(true)
 
-            buildArgs.add("-H:DashboardDump=servedir.dump")
-            buildArgs.add("-H:+DashboardAll")
-            buildArgs.add("-H:+StaticExecutableWithDynamicLibC")
             buildArgs.add("--initialize-at-build-time=org.slf4j")
             buildArgs.add("--initialize-at-build-time=ch.qos.logback")
         }
