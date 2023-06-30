@@ -15,9 +15,9 @@ repositories {
 }
 
 dependencies {
-    implementation("io.netty:netty-codec-http:4.1.87.Final")
-    implementation("org.slf4j:slf4j-api:2.0.3")
-    implementation("ch.qos.logback:logback-classic:1.4.4")
+    implementation("io.netty:netty-codec-http:4.1.94.Final")
+    implementation("org.slf4j:slf4j-api:2.0.7")
+    implementation("ch.qos.logback:logback-classic:1.4.8")
 }
 
 tasks.jar {
