@@ -1,6 +1,9 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     application
     id("org.graalvm.buildtools.native") version "0.9.23"
+    kotlin("jvm") version "1.9.0-RC"
 }
 
 group = "com.codetinkerer.servedir"
@@ -17,9 +20,12 @@ repositories {
 }
 
 dependencies {
+    implementation("ch.qos.logback:logback-classic:1.4.8")
+    implementation("com.formdev:flatlaf:3.1.1")
+    implementation("com.google.code.gson:gson:2.10.1")
     implementation("io.netty:netty-codec-http:4.1.94.Final")
     implementation("org.slf4j:slf4j-api:2.0.7")
-    implementation("ch.qos.logback:logback-classic:1.4.8")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.jar {
@@ -67,4 +73,12 @@ tasks.register<Zip>("packageRelease") {
     dependsOn(compressTask)
     from("$buildDir/native/compressed")
     archiveFileName.set("${project.name}-${systemArchitecture}.zip")
+}
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "20"
+}
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+    jvmTarget = "20"
 }

@@ -2,6 +2,7 @@ package com.codetinkerer.servedir;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.codetinkerer.servedir.gui.ServerListApplication;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -17,9 +18,11 @@ public class ServeDir {
         Logger rootLogger = (Logger) LoggerFactory.getLogger("root");
         rootLogger.setLevel(Level.INFO);
 
-        int port = 8000;
-        String dirPath = System.getProperty("user.dir");
-        new ServeDir(dirPath, port).runServer();
+        //int port = 8000;
+        //String dirPath = System.getProperty("user.dir");
+        //new ServeDir(dirPath, port).runServer();
+
+        ServerListApplication.run();
     }
 
     final org.slf4j.Logger logger = LoggerFactory.getLogger(ServeDir.class);
