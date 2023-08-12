@@ -2,14 +2,12 @@ package com.codetinkerer.servedir.gui
 
 import io.netty.channel.EventLoopGroup
 import org.slf4j.LoggerFactory
-import java.awt.BorderLayout
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
-import java.awt.Insets
+import java.awt.*
 import java.awt.event.ActionEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.io.File
+import java.net.URI
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
@@ -62,15 +60,32 @@ class ServerListWindow(
     }
 
     private fun addServerToUi(server: ServerRunner) {
-        val serverPanel = JPanel()
-        serverPanel.layout = BorderLayout()
+        val serverPanel = JPanel(BorderLayout(18, 6))
         val startStopButton = JButton(if (server.isRunning()) "[]" else "[>")
         serverPanel.add(startStopButton, BorderLayout.WEST)
         val dirLabel = JLabel(server.dirPathFormatted())
         serverPanel.add(dirLabel, BorderLayout.CENTER)
 
+        val portPanel = JPanel(BorderLayout())
+        serverPanel.add(portPanel, BorderLayout.EAST)
+
         val portTextField = JTextField(server.port()?.toString() ?: "")
-        serverPanel.add(portTextField, BorderLayout.EAST)
+        portPanel.add(portTextField)
+
+        val portLink = JButton(server.port()?.toString()).apply {
+            border = null
+            cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+            foreground = Color.BLUE
+        }
+        portLink.addActionListener {
+            val url = "http://localhost:${server.port()}/"
+            try {
+                Desktop.getDesktop().browse(URI(url))
+
+            } catch (e: UnsupportedOperationException) {
+                ProcessBuilder("xdg-open", url).start()
+            }
+        }
 
         val constraints = GridBagConstraints()
         constraints.gridy = serverListPanel.componentCount
@@ -87,6 +102,15 @@ class ServerListWindow(
                         startStopButton.text = if (server.isRunning()) "[]" else "[>"
                         startStopButton.isEnabled = !server.isInTransition()
                         portTextField.isEnabled = !server.isRunning()
+                        if (server.isRunning()) {
+                            portPanel.remove(portTextField)
+                            portPanel.add(portLink)
+                        } else {
+                            portPanel.remove(portLink)
+                            portPanel.add(portTextField)
+                        }
+                        portPanel.revalidate()
+                        portPanel.repaint()
                     }
                 }
             startStopButton.text = if (server.isRunning()) "[]" else "[>"
